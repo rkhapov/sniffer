@@ -1,26 +1,42 @@
-import socket
-import struct
-import constants
+import argparse
+import saver.pcap
+from network.rawgen import RawPackageGenerator
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser(
+        description='This is simple network sniffer on python. '
+                    'It may be used to capture network traffic, '
+                    'display it and save into pcap format. '
+                    'Please note: it is necessary to run it with superuser privileges')
+
+    parser.add_argument('-f', '--filter', help='filter for traffic, may be tcp or udp', default='')
+    parser.add_argument('-o', '--out', help='file to save traffic into pcap format')
+    parser.add_argument('-i', '--interface', help='name of interface to capture traffic', default='')
+
+    parser.add_argument('--ethernet', help='Show Ethernet headers', action='store_true')
+    parser.add_argument('--ipv4', help='Show IPv4 headers', action='store_true')
+    parser.add_argument('--ipv6', help='Show IPv6 headers', action='store_true')
+    parser.add_argument('--tcp', help='Show TCP headers', action='store_true')
+    parser.add_argument('--udp', help='Show UDP headers', action='store_true')
+
+    return parser.parse_args()
 
 
 def main():
-    conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(constants.ETH_P_ALL))
+    args = _parse_args()
 
-    while True:
-        raw_data, addr = conn.recvfrom(constants.ETH_MTU)
-        dest_mac, src_mac, proto, data = ethernet_frame(raw_data)
+    try:
+        with saver.pcap.Saver('file.pcap') as s:
+            gen = RawPackageGenerator()
 
-        print(f'Frame {len(raw_data)}: {dest_mac} {src_mac} {hex(proto)}')
+            for _ in range(50):
+                print('Caught them!')
+                s.save(gen.recv_next())
 
-
-def ethernet_frame(data):
-    dest_mac, src_mac, proto = struct.unpack('! 6s 6s H', data[:14])
-    return get_mac_addr(dest_mac), get_mac_addr(src_mac), socket.htons(proto), data[14:]
-
-
-def get_mac_addr(bytes_addr):
-    bytes_addr = map('{:02x}'.format, bytes_addr)
-    return ':'.join(bytes_addr).upper()
+    except PermissionError:
+        print('Permission denied')
+        print('Please, make sure you run me with superuser privileges (use sudo or su)')
 
 
 if __name__ == '__main__':

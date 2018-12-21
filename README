@@ -1,0 +1,9 @@
+This is simple python network sniffer
+Saves traffic into pcap format, which can be read by wireshark
+Pay attention, that it is necessary to run this program with superuser rights
+
+see python sniffer.py --help for more
+
+
+Useful links:
+https://wiki.wireshark.org/Development/LibpcapFileFormat
