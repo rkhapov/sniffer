@@ -1,5 +1,5 @@
 import argparse
-import saver.pcap
+import saver.pcapsaver
 from network.rawgen import RawPackageGenerator
 
 
@@ -27,7 +27,7 @@ def main():
     args = _parse_args()
 
     try:
-        with saver.pcap.Saver('file.pcap') as s:
+        with saver.pcapsaver.PcapSaver('file.pcap') as s:
             gen = RawPackageGenerator()
 
             for _ in range(50):

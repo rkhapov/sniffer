@@ -1,6 +1,8 @@
 import time
 import struct
 
+from saver.Saver import Saver
+
 GLOBAL_HEADER_FMT = '@ I H H i I I I '
 LOCAL_HEADER_FMT = '@ I I I I'
 
@@ -13,7 +15,7 @@ MAX_LENGTH_CAP = 65535
 DATA_LINK_TYPE = 1
 
 
-class Saver:
+class PcapSaver(Saver):
     def __init__(self, filename):
         if filename == '' or filename is None:
             self.__file = None
