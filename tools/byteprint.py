@@ -20,3 +20,10 @@ def to_hexed_int(val, length=None):
         return '0x' + hex(val).lstrip('0x').upper()
 
     return '0x' + hex(val).lstrip('0x').zfill(length).upper()
+
+
+def to_ipv4_address(bytes_):
+    if len(bytes_) != 4:
+        raise ValueError('Invalid bytes amount for ipv4 address')
+
+    return '.'.join(map(str, bytes_))

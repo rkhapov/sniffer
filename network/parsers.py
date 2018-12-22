@@ -1,5 +1,7 @@
 import struct
 from typing import Optional
+
+import tools.byteprint
 from tools.byteprint import *
 
 from network.frames import *
@@ -46,7 +48,30 @@ class Ipv4FrameParser(InternetFrameParser):
         self.__udp = udp
 
     def parse(self, data) -> Optional[Ipv4Frame]:
-        return Ipv4Frame(data, self.__tcp.parse(data))
+        try:
+            version_header_length, frame_size, identifier, flags_offset, ttl, sub_proto, src, dst = \
+                struct.unpack('! B 1x H H H B B 2x 4s 4s', data[:20])
+            version = version_header_length >> 4
+
+            if version != 4:
+                return None
+
+            header_length = (version_header_length & 0xF) * 4
+            flags = to_hexed_int(flags_offset, 4)
+            src = tools.byteprint.to_ipv4_address(src)
+            dst = tools.byteprint.to_ipv4_address(dst)
+            data_ = data[header_length:]
+
+            if sub_proto == _TCP_TYPE:
+                transport_frame = self.__tcp.parse(data_)
+            elif sub_proto == _UDP_TYPE:
+                transport_frame = self.__udp.parse(data_)
+            else:
+                return None
+
+            return Ipv4Frame(src, dst, identifier, flags, ttl, frame_size, data, transport_frame)
+        except struct.error:
+            return None
 
 
 class Ipv6FrameParser(InternetFrameParser):
@@ -72,6 +97,9 @@ class EthernetFrameParser(LinkFrameParser):
             elif type_ == _IPV6_TYPE:
                 internet_frame = self.__ipv6.parse(sub_frame)
             else:
+                return None
+
+            if internet_frame is None:
                 return None
 
             return EthernetFrame(to_mac_address(destination),

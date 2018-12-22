@@ -66,11 +66,49 @@ class UdpFrame(TransportFrame):
 
 
 class Ipv4Frame(InternetFrame):
-    def __init__(self, raw, transport_frame: TransportFrame):
+    def __init__(self, src, dst, identifier, flags, ttl, size, raw, transport_frame: TransportFrame):
         super().__init__('ipv4', raw, transport_frame)
+        self.__src = src
+        self.__dst = dst
+        self.__ttl = ttl
+        self.__flags = flags
+        self.__size = size
+        self.__identifier = identifier
+
+    @property
+    def identifier(self):
+        return self.__identifier
+
+    @property
+    def src(self):
+        return self.__src
+
+    @property
+    def dst(self):
+        return self.__dst
+
+    @property
+    def flags(self):
+        return self.__flags
+
+    @property
+    def ttl(self):
+        return self.__ttl
+
+    @property
+    def size(self):
+        return self.__size
 
     def get_description(self, tab):
-        return tab + 'i am ipv4 frame:\n' + self.transport_frame.get_description(tab + ' ')
+        return \
+            f'{tab}Internet IPv4 Frame\n' \
+            f'{tab}Source: {self.src}\n' \
+            f'{tab}Destination: {self.dst}\n' \
+            f'{tab}Identifier: {self.identifier}\n' \
+            f'{tab}Flags: {self.flags}\n' \
+            f'{tab}TTL: {self.ttl}\n' \
+            f'{tab}Size: {self.size}\n' \
+            f'{self.transport_frame.get_description(tab + " ")}'
 
 
 class Ipv6Frame(InternetFrame):
