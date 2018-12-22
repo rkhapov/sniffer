@@ -1,6 +1,7 @@
 import argparse
 import saver.pcap
 from network.gen import FrameGenerator
+from network.parsers import EthernetFrameParser, Ipv6FrameParser, Ipv4FrameParser, TcpFrameParser, UdpFrameParser
 from network.raw import RawFrameGenerator
 
 
@@ -15,12 +16,6 @@ def _parse_args():
     parser.add_argument('-o', '--out', help='file to save traffic into pcap format')
     parser.add_argument('-i', '--interface', help='name of interface to capture traffic', default='')
 
-    parser.add_argument('--ethernet', help='Show Ethernet headers', action='store_true')
-    parser.add_argument('--ipv4', help='Show IPv4 headers', action='store_true')
-    parser.add_argument('--ipv6', help='Show IPv6 headers', action='store_true')
-    parser.add_argument('--tcp', help='Show TCP headers', action='store_true')
-    parser.add_argument('--udp', help='Show UDP headers', action='store_true')
-
     return parser.parse_args()
 
 
@@ -29,17 +24,25 @@ def main():
 
     try:
         with saver.pcap.PcapSaver('file.pcap') as s:
-            gen = FrameGenerator(RawFrameGenerator())
+            tcp = TcpFrameParser()
+            udp = UdpFrameParser()
+            ipv4 = Ipv4FrameParser(tcp, udp)
+            ipv6 = Ipv6FrameParser(tcp, udp)
+            ethernet = EthernetFrameParser(ipv4, ipv6)
+
+            gen = FrameGenerator(RawFrameGenerator(), ethernet)
 
             for _ in range(50):
                 frame = gen.get_next()
                 s.save(frame.raw)
-                print(frame)
+                print(frame.get_description())
                 print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     except PermissionError:
         print('Permission denied')
         print('Please, make sure you run me with superuser privileges (use sudo or su)')
+    except KeyboardInterrupt:
+        print('Stopped')
 
 
 if __name__ == '__main__':
