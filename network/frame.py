@@ -1,31 +1,49 @@
-import os
+from typing import Union
+
 import tools.byteprint
+
+
+class Header:
+    def __init__(self, name: str, value: Union[int, bytes], str_repr: str = None):
+        self.__name = name
+        self.__value = value
+        self.__str_repr = str_repr or tools.byteprint.get_bytes_str(value, 25)
+
+    @property
+    def name(self):
+        return self.__name
+
+    @property
+    def value(self):
+        return self.__value
+
+    @property
+    def str_repr(self):
+        return self.__str_repr
+
+    def __str__(self):
+        return 'Header {}: {}'.format(self.name, self.str_repr)
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class Headers:
     def __init__(self, headers=None):
         self.__headers = headers or dict()
 
-    def add(self, header, data):
-        self.__headers[header] = data
-        return self
+    def add(self, header: Header):
+        self.__headers[header.name] = header
 
-    @property
-    def headers(self):
-        return self.__headers
+        return self
 
     @property
     def names(self):
         return list(self.__headers)
 
     @property
-    def values(self):
+    def headers(self):
         return list(map(lambda x: self.__headers[x], list(self.__headers)))
-
-    def __str__(self):
-        return '\n'.join(map(
-            lambda p: f'{p[0]}: {tools.byteprint.get_bytes_str(p[1], 30) if not isinstance(p[1], Frame) else os.linesep + str(p[1])}',
-            self.__headers.items()))
 
     def __getitem__(self, name):
         try:
@@ -62,6 +80,11 @@ class Frame:
 
     def __str__(self):
         return 'Frame {}\nHeaders:\n{}'.format(self.__protocol, str(self.__headers))
+
+
+class LinkFrame(Frame):
+    def __init__(self, headers: Headers, raw):
+        super().__init__(layer, headers, protocol, raw)
 
 
 class EthernetFrame(Frame):

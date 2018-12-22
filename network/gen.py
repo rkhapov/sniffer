@@ -1,7 +1,7 @@
 import struct
-from typing import Iterable, Optional
+from typing import Iterable, Optional, Union
 
-from network.frame import Frame, EthernetFrame
+from network.frame import Frame, EthernetFrame, Ipv6Frame, Ipv4Frame
 from network.parsers.ethernet import EthernetFrameParser
 from network.parsers.ipv4 import Ipv4FrameParser
 from network.parsers.ipv6 import Ipv6FrameParser
@@ -13,6 +13,10 @@ _IPV6_TYPE = 0x86DD
 ethernet_parser = EthernetFrameParser()
 ipv4_parser = Ipv4FrameParser()
 ipv6_parser = Ipv6FrameParser()
+
+
+def _parse_transport(internet_frame: Union[Ipv4Frame, Ipv6Frame]):
+    pass
 
 
 def _parse_internet(ethernet_frame: EthernetFrame):
