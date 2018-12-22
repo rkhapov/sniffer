@@ -1,7 +1,7 @@
 import time
 import struct
 
-from saver.Saver import Saver
+from saver.saver import Saver
 
 GLOBAL_HEADER_FMT = '@ I H H i I I I '
 LOCAL_HEADER_FMT = '@ I I I I'
@@ -45,7 +45,3 @@ class PcapSaver(Saver):
 
         self.__file.write(struct.pack(LOCAL_HEADER_FMT, ts_sec, ts_usec, size, size))
         self.__file.write(package)
-
-    def save_all(self, packages):
-        for p in packages:
-            self.save(p)

@@ -1,6 +1,7 @@
 import argparse
-import saver.pcapsaver
-from network.rawgen import RawPackageGenerator
+import saver.pcap
+from network.gen import FrameGenerator
+from network.raw import RawFrameGenerator
 
 
 def _parse_args():
@@ -27,12 +28,14 @@ def main():
     args = _parse_args()
 
     try:
-        with saver.pcapsaver.PcapSaver('file.pcap') as s:
-            gen = RawPackageGenerator()
+        with saver.pcap.PcapSaver('file.pcap') as s:
+            gen = FrameGenerator(RawFrameGenerator())
 
             for _ in range(50):
-                print('Caught them!')
-                s.save(gen.recv_next())
+                frame = gen.get_next()
+                s.save(frame.raw)
+                print(frame)
+                print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     except PermissionError:
         print('Permission denied')

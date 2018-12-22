@@ -4,7 +4,7 @@ _ETH_P_ALL = 0x0003  # constant from /usr/include/linux/if_ether.h, means get al
 _MTU = 65535
 
 
-class RawPackageGenerator:
+class RawFrameGenerator:
     def __init__(self, mtu=_MTU, interface=''):
         self.__mtu = mtu
         self.__conn = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.htons(_ETH_P_ALL))

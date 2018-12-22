@@ -3,9 +3,9 @@ from abc import abstractmethod
 
 class Saver:
     @abstractmethod
-    def write(self, package):
+    def save(self, package):
         raise NotImplementedError
 
-    def write_all(self, packages):
+    def save_all(self, packages):
         for p in packages:
             self.write(p)
