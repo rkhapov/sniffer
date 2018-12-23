@@ -1,3 +1,8 @@
+def chunks(seq, chunk_size):
+    for i in range(0, len(seq), chunk_size):
+        yield seq[i: i + chunk_size]
+
+
 def get_bytes_str(bytes_, max_length=None):
     if isinstance(bytes_, int):
         return '0x' + hex(bytes_).lstrip('0x').upper()
@@ -27,3 +32,12 @@ def to_ipv4_address(bytes_):
         raise ValueError('Invalid bytes amount for ipv4 address')
 
     return '.'.join(map(str, bytes_))
+
+
+def to_hex_dump(bytes_, rows=16, tab=''):
+    dump = ''
+
+    for chunk in chunks(bytes_, rows):
+        dump += f'{tab}{get_bytes_str(chunk)}\n'
+
+    return dump

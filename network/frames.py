@@ -1,3 +1,4 @@
+from tools.byteprint import *
 from abc import abstractmethod, ABC
 
 
@@ -58,11 +59,36 @@ class TcpFrame(TransportFrame):
 
 
 class UdpFrame(TransportFrame):
-    def get_description(self, tab):
-        return tab + 'i am udp frame'
-
-    def __init__(self, raw):
+    def __init__(self, src_port, dst_port, length, data, raw):
         super().__init__('udp', raw)
+        self.__src_port = src_port
+        self.__dst_port = dst_port
+        self.__length = length
+        self.__data = data
+
+    @property
+    def source_port(self):
+        return self.__src_port
+
+    @property
+    def destination_port(self):
+        return self.__dst_port
+
+    @property
+    def length(self):
+        return self.__length
+
+    @property
+    def data(self):
+        return self.__data
+
+    def get_description(self, tab):
+        return \
+            f'{tab}User Datagram Protocol\n'\
+            f'{tab}Source Port: {self.__src_port}\n'\
+            f'{tab}Destination Port: {self.__dst_port}\n'\
+            f'{tab}Length: {self.__length}\n'\
+            f'{to_hex_dump(self.data, tab=tab)}'
 
 
 class Ipv4Frame(InternetFrame):

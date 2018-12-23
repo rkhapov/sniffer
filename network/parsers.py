@@ -38,8 +38,13 @@ class TcpFrameParser(TransportFrameParser):
 
 
 class UdpFrameParser(TransportFrameParser):
-    def parse(self, data) -> Optional[UdpFrame]:
-        return UdpFrame(data)
+    def parse(self, raw) -> Optional[UdpFrame]:
+        try:
+            src_port, dst_port, length, data = struct.unpack(f'! H H H 2x {len(raw) - 8}s', raw)
+
+            return UdpFrame(src_port, dst_port, length, data, raw)
+        except struct.error:
+            return None
 
 
 class Ipv4FrameParser(InternetFrameParser):
@@ -80,7 +85,10 @@ class Ipv6FrameParser(InternetFrameParser):
         self.__udp = udp
 
     def parse(self, data) -> Optional[Ipv6Frame]:
-        return Ipv6Frame(data, self.__udp.parse(data))
+        try:
+            return Ipv6Frame(data, self.__udp.parse(data))
+        except struct.error:
+            return None
 
 
 class EthernetFrameParser(LinkFrameParser):

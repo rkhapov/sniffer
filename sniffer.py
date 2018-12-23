@@ -32,11 +32,13 @@ def main():
 
             gen = FrameGenerator(RawFrameGenerator(), ethernet)
 
-            for _ in range(50):
+            while True:
                 frame = gen.get_next()
-                s.save(frame.raw)
-                print(frame.get_description())
-                print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+                if frame.internet_frame.transport_frame.protocol == 'udp':
+                    s.save(frame.raw)
+                    print(frame.get_description())
+                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     except PermissionError:
         print('Permission denied')
