@@ -46,15 +46,13 @@ class Sniffer:
                     frame = gen.get_next()
 
                     if self.__filter != '':
-                        if self.__filter == 'tcp' or self.__filter == 'udp':
-                            if frame.internet_frame.transport_frame.protocol != self.__filter:
-                                continue
-                        elif self.__filter == 'ipv4' or self.__filter == 'ipv6':
-                            if frame.internet_frame.protocol != self.__filter:
-                                continue
-                        else:
+                        if self.__filter not in ['ipv4', 'ipv6', 'tcp', 'udp']:
                             print('Invalid filter')
                             break
+
+                        if frame.internet_frame.protocol != self.__filter and \
+                                frame.internet_frame.transport_frame.protocol != self.__filter:
+                            continue
 
                     s.save(frame.raw)
                     print(f'Frame #{count}:')
