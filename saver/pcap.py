@@ -37,6 +37,7 @@ class PcapSaver(Saver):
 
     def close(self):
         if self.__file is not None:
+            self.fileobj.flush()
             self.__file.close()
 
     def save(self, package):

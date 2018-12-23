@@ -36,10 +36,9 @@ def main():
 
             while True:
                 frame = gen.get_next()
-                if frame.internet_frame.transport_frame.protocol == 'udp':
-                    s.save(frame.raw)
-                    print(frame.get_description())
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+                s.save(frame.raw)
+                print(frame.get_description())
+                print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
 
     except PermissionError:
         print('Permission denied')
