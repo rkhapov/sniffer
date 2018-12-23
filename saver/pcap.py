@@ -41,6 +41,9 @@ class PcapSaver(Saver):
             self.__file.close()
 
     def save(self, package):
+        if self.__file is None:
+            return
+
         ts_sec, ts_usec = map(int, str(time.time()).split('.'))
         size = len(package)
 
