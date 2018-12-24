@@ -14,7 +14,8 @@ def _parse_args():
                     'Please note: it is necessary to run it with superuser privileges. '
                     'To stop sniffer use keyboard interruption (Ctrl+C)')
 
-    parser.add_argument('-f', '--filter', help='filter for traffic, may be tcp\\udp\\ipv4\\ipv6', default='')
+    parser.add_argument('-f', '--filter', help='filter for traffic', type=str,
+                        choices=['tcp', 'udp', 'ipv4', 'ipv6'], default='')
     parser.add_argument('-o', '--out', help='file to save traffic in pcap format')
     parser.add_argument('-i', '--interface', help='name of interface to capture traffic', default='')
     parser.add_argument('-n', '--number', help='maximum number of caught frames', default=-1, type=int)
@@ -45,14 +46,8 @@ class Sniffer:
                 while self.__max_frames == -1 or count < self.__max_frames:
                     frame = gen.get_next()
 
-                    if self.__filter != '':
-                        if self.__filter not in ['ipv4', 'ipv6', 'tcp', 'udp']:
-                            print('Invalid filter')
-                            break
-
-                        if frame.internet_frame.protocol != self.__filter and \
-                                frame.internet_frame.transport_frame.protocol != self.__filter:
-                            continue
+                    if not self._frame_completes_to_filter(frame):
+                        continue
 
                     s.save(frame.raw)
                     print(f'Frame #{count}:')
@@ -71,6 +66,13 @@ class Sniffer:
                 print('No such interface')
             else:
                 raise
+
+    def _frame_completes_to_filter(self, frame):
+        if self.__filter == '':
+            return True
+
+        return frame.internet_frame.protocol == self.__filter or \
+            frame.internet_frame.transport_frame.protocol == self.__filter
 
 
 def main():
