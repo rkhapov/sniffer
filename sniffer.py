@@ -31,6 +31,8 @@ class Sniffer:
         self.__max_frames = max_frames
 
     def run(self):
+        count = 0
+
         try:
             with saver.pcap.PcapSaver(self.__out) as s:
                 tcp = TcpFrameParser()
@@ -40,8 +42,6 @@ class Sniffer:
                 ethernet = EthernetFrameParser(ipv4, ipv6)
 
                 gen = FrameGenerator(RawFrameGenerator(interface=self.__interface), ethernet)
-
-                count = 0
 
                 while self.__max_frames == -1 or count < self.__max_frames:
                     frame = gen.get_next()
@@ -61,6 +61,7 @@ class Sniffer:
             print('Please, make sure you run me with superuser privileges (use sudo or su)')
         except KeyboardInterrupt:
             print('\nStopped')
+            print(f'Caught frames: {count}')
         except OSError as e:
             if e.errno == errno.ENODEV:
                 print('No such interface')
